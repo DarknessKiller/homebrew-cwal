@@ -1,10 +1,10 @@
-# cwal Homebrew Tap
+ cwal Homebrew Tap
 
 Install:
 
 ```bash
-brew tap nitinbhat972/cwal
+brew tap darknesskiller/cwal
 brew install cwal
 ````
 
-Project: [cwal](https://github.com/nitinbhat972/cwal)
+Project: [cwal](https://github.com/darknesskiller/cwal)
