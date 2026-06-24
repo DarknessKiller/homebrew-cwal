@@ -1,7 +1,7 @@
 class Cwal < Formula
   desc "Blazing-fast pywal-like color palette generator written in C"
   homepage "https://github.com/nitinbhat972/cwal"
-  url "https://github.com/nitinbhat972/cwal/archive/refs/tags/v0.0.9.tar.gz"
+  url "https://github.com/nitinbhat972/cwal/archive/refs/tags/v0.9.0.tar.gz"
   sha256 "a60461081f1ffa6cab187cecea82edc5ff7883c1d0cfccbcf6c3b3838753a36f"
   license "GPL-3.0-or-later"
 
