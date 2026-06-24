@@ -1,0 +1,71 @@
+name: Update formula
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest upstream release
+        id: latest
+        run: |
+          RESPONSE=$(curl -sL https://api.github.com/repos/nitinbhat972/cwal/releases/latest)
+          TAG=$(echo "$RESPONSE" | jq -r '.tag_name')
+          if [ "$TAG" = "null" ] || [ -z "$TAG" ]; then
+            echo "Failed to get latest tag. API response:"
+            echo "$RESPONSE"
+            exit 1
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+
+      - name: Check if update needed
+        id: check
+        run: |
+          CURRENT=$(sed -n 's/.*url ".*\/archive\/refs\/tags\/v\(.*\)\.tar\.gz".*/\1/p' Formula/cwal.rb)
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+          if [ "$CURRENT" != "${{ steps.latest.outputs.version }}" ]; then
+            echo "need_update=true" >> $GITHUB_OUTPUT
+          else
+            echo "need_update=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download tarball and compute SHA256
+        if: steps.check.outputs.need_update == 'true'
+        id: sha
+        run: |
+          URL="https://github.com/nitinbhat972/cwal/archive/refs/tags/${{ steps.latest.outputs.tag }}.tar.gz"
+          curl -sL "$URL" -o /tmp/source.tar.gz
+          SHA=$(shasum -a 256 /tmp/source.tar.gz | cut -d' ' -f1)
+          echo "sha256=$SHA" >> $GITHUB_OUTPUT
+
+      - name: Update formula file
+        if: steps.check.outputs.need_update == 'true'
+        run: |
+          TAG=${{ steps.latest.outputs.tag }}
+          SHA=${{ steps.sha.outputs.sha256 }}
+          sed -i "" "s|url \".*\"|url \"https://github.com/nitinbhat972/cwal/archive/refs/tags/${TAG}.tar.gz\"|" Formula/cwal.rb
+          sed -i "" "s|sha256 \".*\"|sha256 \"${SHA}\"|" Formula/cwal.rb
+
+      - name: Tap and audit updated formula
+        if: steps.check.outputs.need_update == 'true'
+        run: |
+          brew tap --force homebrew/cwal "${{ github.workspace }}"
+          brew audit --strict cwal
+
+      - name: Commit and push
+        if: steps.check.outputs.need_update == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/cwal.rb
+          git commit -m "chore: update cwal to ${{ steps.latest.outputs.tag }}"
+          git push
