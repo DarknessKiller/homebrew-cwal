@@ -16,8 +16,13 @@ jobs:
 
       - name: Get latest upstream release
         id: latest
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          RESPONSE=$(curl -sL https://api.github.com/repos/nitinbhat972/cwal/releases/latest)
+          RESPONSE=$(curl -fsSL \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          https://api.github.com/repos/nitinbhat972/cwal/releases/latest)
           TAG=$(echo "$RESPONSE" | jq -r '.tag_name')
           if [ "$TAG" = "null" ] || [ -z "$TAG" ]; then
             echo "Failed to get latest tag. API response:"
