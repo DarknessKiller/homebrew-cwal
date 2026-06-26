@@ -7,4 +7,5 @@ brew tap darknesskiller/cwal
 brew install cwal
 ````
 
-Project: [cwal](https://github.com/darknesskiller/cwal)
+Project: [cwal](https://github.com/nitinbhat972/cwal)
+
