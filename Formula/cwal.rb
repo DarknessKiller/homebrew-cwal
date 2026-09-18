@@ -14,7 +14,7 @@ class Cwal < Formula
 
   def install
     inreplace "config.h", '#define INSTALL_DIR "/usr"', "#define INSTALL_DIR \"#{prefix}\""
-    system "cc", "nob.c", "-o", "nob"
+    system ENV.cc, "nob.c", "-o", "nob"
     system "./nob", "build"
     system "./nob", "install"
   end
