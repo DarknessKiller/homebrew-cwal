@@ -3,7 +3,7 @@ class Cwal < Formula
   homepage "https://github.com/nitinbhat972/cwal"
   url "https://github.com/nitinbhat972/cwal/archive/refs/tags/v0.9.0.tar.gz"
   sha256 "a60461081f1ffa6cab187cecea82edc5ff7883c1d0cfccbcf6c3b3838753a36f"
-  license "GPL-3.0-or-later"
+  license "GPL-3.0-only"
 
   depends_on "cmake" => :build
   depends_on "pkgconf" => :build
@@ -13,9 +13,10 @@ class Cwal < Formula
   depends_on "luajit"
 
   def install
-    system "cmake", "-B", "build", "-DCMAKE_BUILD_TYPE=Release", *std_cmake_args
-    system "cmake", "--build", "build"
-    system "cmake", "--install", "build"
+    inreplace "config.h", '#define INSTALL_DIR "/usr"', "#define INSTALL_DIR \"#{prefix}\""
+    system "cc", "nob.c", "-o", "nob"
+    system "./nob", "build"
+    system "./nob", "install"
   end
 
   test do
