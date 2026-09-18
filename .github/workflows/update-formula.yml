@@ -64,6 +64,7 @@ jobs:
         if: steps.check.outputs.need_update == 'true'
         run: |
           brew tap --force homebrew/cwal "${{ github.workspace }}"
+          brew trust --formula homebrew/cwal/cwal
           brew audit --strict cwal
 
       - name: Commit and push
